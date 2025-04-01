@@ -1,8 +1,99 @@
 #include "philo.h"
 
 
+void *monitor_philos(void *arg)
+{
+    t_data *data = (t_data *)arg;
+    int i;
+
+    while (!data->dead)
+    {
+        i = 0;
+        while (i < data->num_philos)
+        {
+            pthread_mutex_lock(&data->write_lock);
+            if (get_time() - data->philos[i].last_meal > data->time_to_die)
+            {
+                print_status(&data->philos[i], "died");
+                data->dead = 1;
+                pthread_mutex_unlock(&data->write_lock);
+                return (NULL);  // Stop checking, the simulation ends
+            }
+            pthread_mutex_unlock(&data->write_lock);
+            i++;
+        }
+        usleep(1000); // Check every 1ms
+    }
+    return (NULL);
+}
+
+
+
+
+void start_simulation(t_data *data, t_philo *philos)
+{
+    pthread_t monitor;
+    int i;
+
+    i=0;
+    pthread_create(&monitor, NULL, monitor_philos, (void *)data);
+    pthread_detach(monitor);  // No need to join this thread
+    while(i < data->num_philos)
+    {
+        pthread_join(philos[i].thread);
+        i++;
+    }
+}
+
+
+
+
+
+void *philo_routine(void *arg)
+{
+    t_philo *philo;
+
+    philo = (t_philo *)arg; // Correct type casting
+
+    while (!philo -> data->dead) // Run until someone dies
+    {
+        // Take left fork
+        pthread_mutex_lock(philo->left_fork);
+        print_status(philo, "has taken a fork!");
+
+        // Take right fork
+        pthread_mutex_lock(philo->right_fork);
+        print_status(philo, "has taken a fork!");
+
+        // Eating
+        philo->last_meal = get_time();
+        philo->meals_eaten += 1;
+        print_status(philo, "is eating!");
+        usleep(philo->data->time_to_eat * 1000);
+
+        // Put forks back
+        pthread_mutex_unlock(philo->right_fork);
+        pthread_mutex_unlock(philo->left_fork);
+
+        // Sleeping
+        print_status(philo, "is sleeping!");
+        usleep(philo->data->time_to_sleep * 1000);
+
+        // Thinking
+        print_status(philo, "is thinking!");
+    }
+
+    return (NULL);
+}
+
+
+
+
 void init_data(t_data *data, char **argv)
 {
+    int i;
+
+    i=0;
     data->num_philos = ft_atoi(argv[1]);
     data->time_to_die = ft_atoi(argv[2]);
     data->time_to_eat = ft_atoi(argv[3]);
@@ -19,12 +110,13 @@ void init_data(t_data *data, char **argv)
         exit(1);
     }
     
-    for (i = 0; i < data->num_philos; i++)
+    while(i< data->num_philos )
+    {
         pthread_mutex_init(&data->forks[i], NULL);
+        i++;
+    }     
 
     pthread_mutex_init(&data->write_lock, NULL);
-
-
 }
 
 
