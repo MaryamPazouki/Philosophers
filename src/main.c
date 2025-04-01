@@ -1,6 +1,25 @@
 #include "philo.h"
 
 
+void print_status(t_philo *philo, char *msg)
+{
+    long long timestamp;
+
+    // Lock the mutex to ensure only one thread prints at a time
+    pthread_mutex_lock(&philo->data->write_lock);
+    
+    // Get the timestamp (current time in ms since the start of the simulation)
+    timestamp = get_time() - philo->data->start_time;
+
+    // Print philosopher status: timestamp, philosopher id, and message
+    printf("%lld %d %s\n", timestamp, philo->id, msg);
+
+    // Unlock the mutex so other threads can print
+    pthread_mutex_unlock(&philo->data->write_lock);
+}
+
+
+
 void *monitor_philos(void *arg)
 {
     t_data *data = (t_data *)arg;
@@ -194,3 +213,6 @@ int main(int argc, char **argv)
     free(philos);
     return (0);
 }
+
+
+https://www.youtube.com/watch?v=7ENFeb-J75k
