@@ -181,6 +181,18 @@ void *philo_routine(void *arg)
 {
 	t_philo *philo = (t_philo *)arg;
 
+
+	// Handle case where there's only 1 philosopher
+    if (philo->data->num_philos == 1)
+    {
+        print_status(philo, "has taken a fork");
+        usleep(philo->data->time_to_eat * 1000);
+        print_status(philo, "is eating!");
+        usleep(philo->data->time_to_sleep * 1000);
+        print_status(philo, "is thinking!");
+        return NULL; // Exit after completing the routine for a single philosopher
+    }
+
 	// Small delay to reduce deadlock chances
 	if (philo->id % 2 == 0)
 		usleep(1000);
