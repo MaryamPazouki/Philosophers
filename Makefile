@@ -2,11 +2,10 @@ NAME = philo
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -pthread
+INCLUDES = -Iinclude
 
-SRC = 	main.c\
-		utils.c\
-		philo_init.c\
-		philo_routine.c
+SRC =	src/main.c\
+		src/utils.c
 
 OBJ = $(SRC:.c=.o)
 
@@ -15,7 +14,7 @@ RM = rm -f
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJ)
+	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@

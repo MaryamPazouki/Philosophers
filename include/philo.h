@@ -28,6 +28,8 @@ typedef struct s_data {
     int dead;
     pthread_mutex_t *forks;
     pthread_mutex_t write_lock;
+    pthread_mutex_t meal_check_lock;
+    struct s_philo *philos;
 } t_data;
 
 // Function prototypes
@@ -37,5 +39,6 @@ void init_philosophers(t_data *data, t_philo *philos);
 void start_simulation(t_data *data, t_philo *philos);
 void *philo_routine(void *arg);
 void print_status(t_philo *philo, char *msg);
+int	ft_atoi(const char *str);
 
 #endif
