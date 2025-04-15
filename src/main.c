@@ -2,33 +2,11 @@
 
 
 /*Purpose: Thread-safe function to print philosopher actions (e.g., "is eating", "died").
-
 Locks the write_lock mutex to prevent jumbled output from concurrent threads.
-
 Gets the current time minus the simulation start time (get_time() - start_time).
-
 Prints the message with timestamp and philosopher ID.
-
 Unlocks the mutex.
-
 ➡️ Ensures clean and synchronized terminal output.*/
-/*
-void print_status(t_philo *philo, char *msg)
-{
-	long long timestamp;
-
-	// Lock the mutex to ensure only one thread prints at a time
-	pthread_mutex_lock(&philo->data->write_lock);
-	
-	// Get the timestamp (current time in ms since the start of the simulation)
-	timestamp = get_time() - philo->data->start_time;
-
-	// Print philosopher status: timestamp, philosopher id, and message
-	printf("%lld %d %s\n", timestamp, philo->id, msg);
-
-	// Unlock the mutex so other threads can print
-	pthread_mutex_unlock(&philo->data->write_lock);
-} */
 	
 
 void	print_status(t_philo *philo, char *msg)
@@ -68,15 +46,10 @@ int all_ate(t_data *data)
 /*Purpose: Runs in a separate thread to monitor if any philosopher dies.
 
 Casts the arg back to t_data *.
-
 Loops through all philosophers checking if:
-
 current_time - last_meal > time_to_die.
-
 If so, prints "died" and sets the dead flag.
-
 Loops every 1ms to avoid CPU overuse.
-
 ➡️ Stops simulation once someone dies.*/
 
 void *monitor_philos(void *arg)
@@ -89,18 +62,22 @@ void *monitor_philos(void *arg)
 		i = 0;
 		while (i < data->num_philos)
 		{
-			pthread_mutex_lock(&data->write_lock);
+			pthread_mutex_lock(&data->meal_check_lock);
+			long long time_since_meal = get_time() - data->philos[i].last_meal;
 			
 			// check if philo has died
-			if (get_time() - data->philos[i].last_meal > data->time_to_die)
+			if (time_since_meal > data->time_to_die)
 			{
-				print_status(&data->philos[i], "died");
+				pthread_mutex_unlock(&data->meal_check_lock);
+				pthread_mutex_lock(&data->write_lock);
 				data->dead = 1;
+				print_status(&data->philos[i], "died");
 				pthread_mutex_unlock(&data->write_lock);
 				return (NULL);
 			}
-			pthread_mutex_unlock(&data->write_lock);
+			pthread_mutex_unlock(&data->meal_check_lock);
 			i++;
+			usleep(100); // reduce CPU usage
 		}
 		// check if the philos has eaten enough
 		if (data->must_eat != -1 && all_ate(data))
@@ -120,11 +97,8 @@ void *monitor_philos(void *arg)
 }
 
 /*Purpose: Launches the monitor and joins philosopher threads.
-
 Creates and detaches the monitoring thread.
-
 Waits (pthread_join) for each philosopher thread to finish.
-
 ➡️ Ties the whole simulation together.*/
 
 
@@ -138,7 +112,6 @@ void start_simulation(t_data *data, t_philo *philos)
 
 	// Wait for monitor to finish (either a death or all ate)
     pthread_join(monitor, NULL);
-	//pthread_detach(monitor);  // No need to join this thread
 	while(i < data->num_philos)
 	{
 		pthread_join(philos[i].thread, NULL);
@@ -153,28 +126,22 @@ void smart_sleep(int duration_ms, t_data *data)
 {
 	long long start = get_time();
 
-	while (!data->dead && (get_time() - start) < duration_ms)
-		usleep(100); // sleep in small chunks, check `dead` flag
+	while (!data->dead && (get_time() - start < duration_ms))
+	{	usleep(100); // sleep in small chunks, check `dead` flag
+		//printf("smart_sleep running: %lld ms\n", get_time() - start);
+	}
 }
 
 
 
 /*Purpose: The core behavior loop for each philosopher.
-
 Loops while no one is dead:
-
 Takes left fork (pthread_mutex_lock)
-
 Takes right fork
-
 Updates last_meal, eats, and increases meal count.
-
 Unlocks both forks.
-
 Sleeps
-
 Thinks
-
 ➡️ Each thread runs this — it’s the philosopher’s lifecycle.*/
 
 void *philo_routine(void *arg)
@@ -184,17 +151,26 @@ void *philo_routine(void *arg)
 
 	// Handle case where there's only 1 philosopher
     if (philo->data->num_philos == 1)
-    {
-        print_status(philo, "has taken a fork");
-        usleep(philo->data->time_to_eat * 1000);
-        print_status(philo, "is eating!");
-        usleep(philo->data->time_to_sleep * 1000);
-        print_status(philo, "is thinking!");
-        return NULL; // Exit after completing the routine for a single philosopher
-    }
+	{
+    	pthread_mutex_lock(philo->left_fork);
+    	print_status(philo, "has taken a fork");
+    	// He can't take a second fork, so he waits until he dies
+    	smart_sleep(philo->data->time_to_die, philo->data);
+    	pthread_mutex_unlock(philo->left_fork);
+
+		pthread_mutex_lock(&philo->data->write_lock);
+		if (!philo->data->dead)
+		{
+			printf("%-6lld  %-2d  died, waiting all the time for second fork!\n", get_time() - philo->data->start_time, philo->id);
+			philo->data->dead = 1;
+		}
+		pthread_mutex_unlock(&philo->data->write_lock);
+		return NULL;
+	}
+
 
 	// Small delay to reduce deadlock chances
-	if (philo->id % 2 == 0)
+	if (philo->id % 2 != 0)
 		usleep(1000);
 
 	while (1)
@@ -227,7 +203,7 @@ void *philo_routine(void *arg)
 
 		print_status(philo, "is eating!");
 		smart_sleep(philo->data->time_to_eat, philo->data);
-
+				
 		// Put down forks
 		pthread_mutex_unlock(philo->left_fork);
 		pthread_mutex_unlock(philo->right_fork);
@@ -244,8 +220,9 @@ void *philo_routine(void *arg)
 
 		// Thinking
 		print_status(philo, "is thinking!");
+		usleep(500); // small wait to reduce contention
 	}
-
+	usleep(1000);
 	return NULL;
 }
 
@@ -300,7 +277,6 @@ left_fork and right_fork
 data reference
 
 Creates threads that run philo_routine.
-
 Makes each philosopher a thread with proper fork pointers.*/
 
 
@@ -370,9 +346,6 @@ void clean_up(t_data *data)
 
     // Add any other cleanup code here as necessary
 }
-
-
-
 
 
 int main(int argc, char **argv)
