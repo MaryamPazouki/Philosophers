@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/time.h>
-
+#include <string.h>
 typedef struct s_philo {
     int id;
     int meals_eaten;

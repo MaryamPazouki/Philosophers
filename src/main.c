@@ -21,24 +21,40 @@ Prints the message with timestamp and philosopher ID.
 Unlocks the mutex.
 ➡️ Ensures clean and synchronized terminal output.*/
 	
-
 void	print_status(t_philo *philo, char *msg)
 {
 	long long	timestamp;
 
 	pthread_mutex_lock(&philo->data->write_lock);
-	if (!philo->data->dead)
+	if (!philo->data->dead || strcmp(msg, "died") == 0)
 	{
 		timestamp = get_time() - philo->data->start_time;
 		printf("%-6lld  %-2d  %s\n", timestamp, philo->id, msg);
 	}
-	else if (philo->data->dead)
-	{
-		printf("%-2d  %s\n", philo->id, msg);
-		pthread_mutex_unlock(&philo->data->write_lock);
-	}
 	pthread_mutex_unlock(&philo->data->write_lock);
 }
+
+
+
+
+
+// void	print_status(t_philo *philo, char *msg)
+// {
+// 	long long	timestamp;
+
+// 	pthread_mutex_lock(&philo->data->write_lock);
+// 	if (!philo->data->dead)
+// 	{
+// 		timestamp = get_time() - philo->data->start_time;
+// 		printf("%-6lld  %-2d  %s\n", timestamp, philo->id, msg);
+// 	}
+// 	else if (philo->data->dead)
+// 	{
+// 		printf("%-2d  %s\n", philo->id, msg);
+// 		pthread_mutex_unlock(&philo->data->write_lock);
+// 	}
+// 	pthread_mutex_unlock(&philo->data->write_lock);
+// }
 
 
 int all_ate(t_data *data)
@@ -89,10 +105,7 @@ void *monitor_philos(void *arg)
 				pthread_mutex_unlock(&data->meal_check_lock);
 				pthread_mutex_lock(&data->write_lock);
 				data->dead = 1;
-				printf("%-6lld philosopher can not eat, dead signal%d\n",
-					get_time() - data->start_time, data->dead);
-				print_status(&data->philos[i], "died");
-				pthread_mutex_unlock(&data->write_lock);
+				printf("%-6lld  %-2d  died, lack of time \n", get_time() - data->start_time, data->philos[i].id);
 				return (NULL);
 			}
 			pthread_mutex_unlock(&data->meal_check_lock);
