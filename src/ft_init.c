@@ -1,0 +1,86 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_init.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mpazouki <mpazouki@student.42.fr>          #+#  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025-04-17 09:13:58 by mpazouki          #+#    #+#             */
+/*   Updated: 2025-04-17 09:13:58 by mpazouki         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philo.h"
+
+/*
+Purpose: Parses arguments and sets up shared data.
+Converts all arguments to integers.
+Initializes dead, start_time.
+Allocates and initializes all mutexes for forks.
+Initializes the write_lock.
+
+Prepares global/shared data used by all philosophers.*/
+
+void init_data(t_data *data, char **argv)
+{
+	int i;
+
+	i=0;
+	data->num_philos = ft_atoi(argv[1]);
+	data->time_to_die = ft_atoi(argv[2]);
+	data->time_to_eat = ft_atoi(argv[3]);
+	data->time_to_sleep = ft_atoi(argv[4]);
+	data->must_eat = (argv[5]) ? ft_atoi(argv[5]): -1;
+	
+	data->dead = 0;
+	data->start_time = get_time();
+	
+	data->forks = malloc(sizeof(pthread_mutex_t) * data->num_philos);
+	if (!data->forks)
+	{
+		printf("Error: Memory allocation failed.\n");
+		exit(1);
+	}
+	
+	while(i< data->num_philos )
+	{
+		pthread_mutex_init(&data->forks[i], NULL);
+		i++;
+	}     
+
+	pthread_mutex_init(&data->write_lock, NULL);
+	pthread_mutex_init(&data->meal_check_lock, NULL);
+}
+
+
+/*Initializes each philosopher’s data and spawns their threads.
+
+Sets:
+id, meals_eaten, last_meal
+left_fork and right_fork
+data reference
+
+Creates threads that run philo_routine.
+Makes each philosopher a thread with proper fork pointers.*/
+
+
+void init_philosophers(t_data *data, t_philo *philos)
+{
+	int i;
+
+	for (i = 0; i < data->num_philos; i++)
+	{
+		philos[i].id = i + 1;
+		philos[i].meals_eaten = 0;
+		philos[i].last_meal = data->start_time;
+		philos[i].left_fork = &data->forks[i];
+		philos[i].right_fork = &data->forks[(i + 1) % data->num_philos];
+		philos[i].data = data;
+
+		if (pthread_create(&philos[i].thread, NULL, philo_routine, &philos[i]) != 0)
+		{
+			printf("Error: Failed to create philosopher thread %d.\n", philos[i].id);
+			exit(1);
+		}
+	}
+}

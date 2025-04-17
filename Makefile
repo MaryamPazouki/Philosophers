@@ -5,7 +5,10 @@ CFLAGS = -Wall -Wextra -Werror -pthread
 INCLUDES = -Iinclude
 
 SRC =	src/main.c\
-		src/utils.c
+		src/utils.c\
+		src/ft_init.c\
+		src/ft_validate.c\
+		
 
 OBJ = $(SRC:.c=.o)
 

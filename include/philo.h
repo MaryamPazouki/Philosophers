@@ -51,5 +51,11 @@ void start_simulation(t_data *data, t_philo *philos);
 void *philo_routine(void *arg);
 void print_status(t_philo *philo, char *msg);
 int	ft_atoi(const char *str);
-
+void print_status(t_philo *philo, char *msg);
+int all_ate(t_data *data);
+void smart_sleep(int duration_ms, t_data *data);
+void init_philosophers(t_data *data, t_philo *philos);
+void init_data(t_data *data, char **argv);
+int check_args(int argc, char **argv);
+void clean_up(t_data *data);
 #endif
