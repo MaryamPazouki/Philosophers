@@ -12,14 +12,6 @@
 
 #include "philo.h"
 
-/*
-Purpose: Parses arguments and sets up shared data.
-Converts all arguments to integers.
-Initializes dead, start_time.
-Allocates and initializes all mutexes for forks.
-Initializes the write_lock.
-
-Prepares global/shared data used by all philosophers.*/
 
 void init_data(t_data *data, char **argv)
 {
@@ -51,17 +43,6 @@ void init_data(t_data *data, char **argv)
 	pthread_mutex_init(&data->write_lock, NULL);
 	pthread_mutex_init(&data->meal_check_lock, NULL);
 }
-
-
-/*Initializes each philosopher’s data and spawns their threads.
-
-Sets:
-id, meals_eaten, last_meal
-left_fork and right_fork
-data reference
-
-Creates threads that run philo_routine.
-Makes each philosopher a thread with proper fork pointers.*/
 
 
 void init_philosophers(t_data *data, t_philo *philos)

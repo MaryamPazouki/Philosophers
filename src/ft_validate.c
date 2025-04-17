@@ -12,15 +12,6 @@
 
 #include "philo.h"
 
-
-/*
-Purpose: Validates the command-line arguments.
-Must be 5 or 6 arguments.
-All arguments must be positive integers.
-
-➡️ Catches early errors before simulating.*/
-
-
 int check_args(int argc, char **argv)
 {
 	if (argc != 5 && argc != 6)
