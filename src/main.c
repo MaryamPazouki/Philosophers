@@ -1,3 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mpazouki <mpazouki@student.42.fr>          #+#  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025-04-17 07:47:22 by mpazouki          #+#    #+#             */
+/*   Updated: 2025-04-17 07:47:22 by mpazouki         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
 #include "philo.h"
 
 
@@ -18,6 +31,11 @@ void	print_status(t_philo *philo, char *msg)
 	{
 		timestamp = get_time() - philo->data->start_time;
 		printf("%-6lld  %-2d  %s\n", timestamp, philo->id, msg);
+	}
+	else if (philo->data->dead)
+	{
+		printf("%-2d  %s\n", philo->id, msg);
+		pthread_mutex_unlock(&philo->data->write_lock);
 	}
 	pthread_mutex_unlock(&philo->data->write_lock);
 }
@@ -71,6 +89,8 @@ void *monitor_philos(void *arg)
 				pthread_mutex_unlock(&data->meal_check_lock);
 				pthread_mutex_lock(&data->write_lock);
 				data->dead = 1;
+				printf("%-6lld philosopher can not eat, dead signal%d\n",
+					get_time() - data->start_time, data->dead);
 				print_status(&data->philos[i], "died");
 				pthread_mutex_unlock(&data->write_lock);
 				return (NULL);
@@ -86,7 +106,7 @@ void *monitor_philos(void *arg)
 			data->dead = 1;
 			printf("%-6lld  💀  All philosophers have eaten at least %d times\n",
 				get_time() - data->start_time, data->must_eat);
-			usleep(1000);
+			//usleep(1000);
 			pthread_mutex_unlock(&data->write_lock);
 			return(NULL);
 		}
@@ -104,13 +124,14 @@ Waits (pthread_join) for each philosopher thread to finish.
 
 void start_simulation(t_data *data, t_philo *philos)
 {
-	pthread_t monitor;
-	int i;
+    pthread_t monitor;
+    int i;
+	i = 0;
 
-	i=0;
-	pthread_create(&monitor, NULL, monitor_philos, (void *)data);
+    // Create the monitor thread
+    pthread_create(&monitor, NULL, monitor_philos, (void *)data);
 
-	// Wait for monitor to finish (either a death or all ate)
+    // Wait for the monitor thread to finish
     pthread_join(monitor, NULL);
 	while(i < data->num_philos)
 	{
