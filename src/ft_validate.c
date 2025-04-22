@@ -27,8 +27,8 @@ int	check_args(int argc, char **argv)
 	}
 	while (++i < argc)
 	{
-		j = 0;
-		while (j < argv[i][j])
+		j = -1;
+		while (++j < argv[i][j])
 		{
 			if (argv[i][j] < '0' || argv[i][j] > '9' ||
 				ft_atoi(argv[i]) <= 0 || ft_atoi(argv[i]) > 2147483647)
@@ -36,7 +36,6 @@ int	check_args(int argc, char **argv)
 				printf("Error: All arguments must be positive integers.\n");
 				return (1);
 			}
-			j++;
 		}
 	}
 	return (0);
