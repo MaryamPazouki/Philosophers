@@ -12,75 +12,155 @@
 
 #include "philo.h"
 
-void	*philo_routine(void *arg)
+int	check_one_philo(t_philo *philo)
 {
-	t_philo *philo = (t_philo *)arg;
-
 	if (philo->data->num_philos == 1)
 	{
 		pthread_mutex_lock(philo->left_fork);
 		print_status(philo, "has taken a fork");
 		smart_sleep(philo->data->time_to_die, philo->data);
 		pthread_mutex_unlock(philo->left_fork);
-
 		pthread_mutex_lock(&philo->data->write_lock);
 		if (!philo->data->dead)
 		{
-			printf("%-6lld  %-2d  died,\
-				waiting all the time for second fork!\n", get_time()
-				- philo->data->start_time, philo->id);
+			printf("%-6lld  %-2d  💀 died, fork is not enough!\n",
+				get_time() - philo->data->start_time, philo->id);
 			philo->data->dead = 1;
 		}
 		pthread_mutex_unlock(&philo->data->write_lock);
-		return (NULL);
+		return (1);
 	}
+	return (0);
+}
 
-	if (philo->id % 2 != 0)
-		usleep(1000);
+void	ft_pick_fork(t_philo *philo)
+{
+	if (philo->id % 2 == 0)
+	{
+		pthread_mutex_lock(philo->right_fork);
+		print_status(philo, "has taken a fork");
+		pthread_mutex_lock(philo->left_fork);
+		print_status(philo, "has taken a fork");
+	}
+	else
+	{
+		pthread_mutex_lock(philo->left_fork);
+		print_status(philo, "has taken a fork");
+		pthread_mutex_lock(philo->right_fork);
+		print_status(philo, "has taken a fork");
+	}
+}
 
+void	ft_eating_sleeping_thinking(t_philo *philo)
+{
 	while (1)
 	{
 		if (philo->data->dead)
 			break ;
-
-		if (philo->id % 2 == 0)
-		{
-			pthread_mutex_lock(philo->right_fork);
-			print_status(philo, "has taken a fork");
-			pthread_mutex_lock(philo->left_fork);
-			print_status(philo, "has taken a fork");
-		}
-		else
-		{
-			pthread_mutex_lock(philo->left_fork);
-			print_status(philo, "has taken a fork");
-			pthread_mutex_lock(philo->right_fork);
-			print_status(philo, "has taken a fork");
-		}
-
+		ft_pick_fork(philo);
 		pthread_mutex_lock(&philo->data->meal_check_lock);
 		philo->last_meal = get_time();
 		philo->meals_eaten += 1;
 		pthread_mutex_unlock(&philo->data->meal_check_lock);
-
 		print_status(philo, "is eating!");
 		smart_sleep(philo->data->time_to_eat, philo->data);
-
 		pthread_mutex_unlock(philo->left_fork);
 		pthread_mutex_unlock(philo->right_fork);
-
 		if (philo->data->dead)
 			break ;
-
 		print_status(philo, "is sleeping!");
 		smart_sleep(philo->data->time_to_sleep, philo->data);
-
 		if (philo->data->dead)
 			break ;
-
 		print_status(philo, "is thinking!");
 		usleep(500);
 	}
+}
+
+void	*philo_routine(void *arg)
+{
+	t_philo	*philo;
+
+	philo = (t_philo *)arg;
+	if (check_one_philo(philo))
+		return (NULL);
+	if (philo->id % 2 != 0)
+		usleep(1000);
+	ft_eating_sleeping_thinking(philo);
 	usleep(1000);
 	return (NULL);
 }
+
+// void	*philo_routine(void *arg)
+// {
+// 	t_philo *philo = (t_philo *)arg;
+
+// 	if (philo->data->num_philos == 1)
+// 	{
+// 		pthread_mutex_lock(philo->left_fork);
+// 		print_status(philo, "has taken a fork");
+// 		smart_sleep(philo->data->time_to_die, philo->data);
+// 		pthread_mutex_unlock(philo->left_fork);
+
+// 		pthread_mutex_lock(&philo->data->write_lock);
+// 		if (!philo->data->dead)
+// 		{
+// 			printf("%-6lld  %-2d  died,\
+// 				waiting all the time for second fork!\n",
+// 					get_time() - philo->data->start_time,
+// 					philo->id);
+// 			philo->data->dead = 1;
+// 		}
+// 		pthread_mutex_unlock(&philo->data->write_lock);
+// 		return (NULL);
+// 	}
+
+// 	if (philo->id % 2 != 0)
+// 		usleep(1000);
+
+// 	while (1)
+// 	{
+// 		if (philo->data->dead)
+// 			break ;
+
+// 		if (philo->id % 2 == 0)
+// 		{
+// 			pthread_mutex_lock(philo->right_fork);
+// 			print_status(philo, "has taken a fork");
+// 			pthread_mutex_lock(philo->left_fork);
+// 			print_status(philo, "has taken a fork");
+// 		}
+// 		else
+// 		{
+// 			pthread_mutex_lock(philo->left_fork);
+// 			print_status(philo, "has taken a fork");
+// 			pthread_mutex_lock(philo->right_fork);
+// 			print_status(philo, "has taken a fork");
+// 		}
+
+// 		pthread_mutex_lock(&philo->data->meal_check_lock);
+// 		philo->last_meal = get_time();
+// 		philo->meals_eaten += 1;
+// 		pthread_mutex_unlock(&philo->data->meal_check_lock);
+
+// 		print_status(philo, "is eating!");
+// 		smart_sleep(philo->data->time_to_eat, philo->data);
+
+// 		pthread_mutex_unlock(philo->left_fork);
+// 		pthread_mutex_unlock(philo->right_fork);
+
+// 		if (philo->data->dead)
+// 			break ;
+
+// 		print_status(philo, "is sleeping!");
+// 		smart_sleep(philo->data->time_to_sleep, philo->data);
+
+// 		if (philo->data->dead)
+// 			break ;
+
+// 		print_status(philo, "is thinking!");
+// 		usleep(500);
+// 	}
+// 	usleep(1000);
+// 	return (NULL);
+// }

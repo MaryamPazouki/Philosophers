@@ -49,7 +49,7 @@ int	main(int argc, char **argv)
 	return (0);
 }
 
-//   ------------------------------------------------original -------------------------------------------//
+//   ---------------------------original -----------------//
 // #include "philo.h"
 
 // void *monitor_philos(void *arg)
@@ -69,7 +69,7 @@ int	main(int argc, char **argv)
 // 				pthread_mutex_lock(&data->write_lock);
 // 				data->dead = 1;
 // 				printf("%-6lld  %-2d  💀 died, lack of time\n", get_time()
-					- data->start_time, data->philos[i].id);
+//				- data->start_time, data->philos[i].id);
 // 				pthread_mutex_unlock(&data->write_lock);
 // 				return (NULL);
 // 			}
@@ -123,8 +123,8 @@ int	main(int argc, char **argv)
 // 		if (!philo->data->dead)
 // 		{
 // 			printf("%-6lld  %-2d  died,
-				waiting all the time for second fork!\n", get_time()
-				- philo->data->start_time, philo->id);
+//				waiting all the time for second fork!\n", get_time()
+//				- philo->data->start_time, philo->id);
 // 			philo->data->dead = 1;
 // 		}
 // 		pthread_mutex_unlock(&philo->data->write_lock);

@@ -55,7 +55,7 @@ void	init_philosophers(t_data *data, t_philo *philos)
 		if (pthread_create(&philos[i].thread, NULL,
 				philo_routine, &philos[i]) != 0)
 		{
-			printf("Error: Failed to create philosopher thread %d.\n", 
+			printf("Error: Failed to create philosopher thread %d.\n",
 				philos[i].id);
 			exit(1);
 		}
