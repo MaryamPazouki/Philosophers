@@ -6,6 +6,7 @@ INCLUDES = -Iinclude
 
 SRC =	src/main.c\
 		src/utils.c\
+		src/utilsII.c\
 		src/ft_init.c\
 		src/ft_validate.c\
 		

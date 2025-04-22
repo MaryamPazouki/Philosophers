@@ -21,9 +21,8 @@ int	check_args(int argc, char **argv)
 	j = 0;
 	if (argc != 5 && argc != 6)
 	{
-		printf("Usage: ./philo number_of_philosophers time_to_die
-			time_to_eat time_to_sleep
-			[number_of_times_each_philosopher_must_eat]\n");
+		printf("Usage: ./philo number_of_philosophers time_to_die time_to_eat");
+		printf("time_to_sleep [number_of_times_each_philosopher_must_eat]\n");
 		return (1);
 	}
 	while (i < argc)
