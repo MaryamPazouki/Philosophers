@@ -12,7 +12,7 @@
 
 #include "philo.h"
 
-void *philo_routine(void *arg)
+void	*philo_routine(void *arg)
 {
 	t_philo *philo = (t_philo *)arg;
 
@@ -26,11 +26,13 @@ void *philo_routine(void *arg)
 		pthread_mutex_lock(&philo->data->write_lock);
 		if (!philo->data->dead)
 		{
-			printf("%-6lld  %-2d  died, waiting all the time for second fork!\n", get_time() - philo->data->start_time, philo->id);
+			printf("%-6lld  %-2d  died,\
+				waiting all the time for second fork!\n", get_time()
+				- philo->data->start_time, philo->id);
 			philo->data->dead = 1;
 		}
 		pthread_mutex_unlock(&philo->data->write_lock);
-		return NULL;
+		return (NULL);
 	}
 
 	if (philo->id % 2 != 0)
@@ -38,9 +40,8 @@ void *philo_routine(void *arg)
 
 	while (1)
 	{
-
 		if (philo->data->dead)
-			break;
+			break ;
 
 		if (philo->id % 2 == 0)
 		{
@@ -69,17 +70,17 @@ void *philo_routine(void *arg)
 		pthread_mutex_unlock(philo->right_fork);
 
 		if (philo->data->dead)
-			break;
+			break ;
 
 		print_status(philo, "is sleeping!");
 		smart_sleep(philo->data->time_to_sleep, philo->data);
 
 		if (philo->data->dead)
-			break;
+			break ;
 
 		print_status(philo, "is thinking!");
 		usleep(500);
 	}
 	usleep(1000);
-	return NULL;
+	return (NULL);
 }

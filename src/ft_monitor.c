@@ -12,9 +12,9 @@
 
 #include "philo.h"
 
-int ft_lack_of_time(t_data *data)
+int	ft_lack_of_time(t_data *data)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < data->num_philos)
@@ -25,8 +25,8 @@ int ft_lack_of_time(t_data *data)
 			pthread_mutex_unlock(&data->meal_check_lock);
 			pthread_mutex_lock(&data->write_lock);
 			data->dead = 1;
-			printf("%-6lld  %-2d  💀 died, lack of time\n",
-				   get_time() - data->start_time, data->philos[i].id);
+			printf("%-6lld  %-2d  💀 died, lack of time\n", get_time()
+				- data->start_time, data->philos[i].id);
 			pthread_mutex_unlock(&data->write_lock);
 			return (1);
 		}
@@ -37,9 +37,9 @@ int ft_lack_of_time(t_data *data)
 	return (0);
 }
 
-void *monitor_philos(void *arg)
+void	*monitor_philos(void *arg)
 {
-	t_data *data;
+	t_data	*data;
 
 	data = (t_data *)arg;
 	while (!data->dead)
@@ -51,7 +51,7 @@ void *monitor_philos(void *arg)
 			pthread_mutex_lock(&data->write_lock);
 			data->dead = 1;
 			printf("%-6lld  💀  All philosophers have eaten at least %d times\n",
-				   get_time() - data->start_time, data->must_eat);
+				get_time() - data->start_time, data->must_eat);
 			usleep(1000);
 			pthread_mutex_unlock(&data->write_lock);
 			return (NULL);
