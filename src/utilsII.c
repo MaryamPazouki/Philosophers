@@ -12,9 +12,9 @@
 
 #include "philo.h"
 
-void clean_up(t_data *data)
+void	clean_up(t_data *data)
 {
-	if (data->forks) 
+	if (data->forks)
 	{
 		free(data->forks);
 	}

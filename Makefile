@@ -9,6 +9,8 @@ SRC =	src/main.c\
 		src/utilsII.c\
 		src/ft_init.c\
 		src/ft_validate.c\
+		src/ft_monitor.c\
+		src/ft_routine.c\
 		
 
 OBJ = $(SRC:.c=.o)
