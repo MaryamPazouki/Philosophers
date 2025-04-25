@@ -12,6 +12,16 @@
 
 #include "philo.h"
 
+int		g_flag = 0;
+
+void	reaction(int sig)
+{
+	if (sig == SIGINT)
+	{
+		printf("Terminating simulation...\n");
+		g_flag = 1;
+	}
+}
 int	ft_lack_of_time(t_data *data)
 {
 	int	i;
@@ -20,12 +30,12 @@ int	ft_lack_of_time(t_data *data)
 	while (i < data->num_philos)
 	{
 		pthread_mutex_lock(&data->meal_check_lock);
-		if (get_time() - data->philos[i].last_meal > data->time_to_die)
+		if (get_time() - data->philos[i].last_meal > data->time_to_die || g_flag == 1)
 		{
 			pthread_mutex_unlock(&data->meal_check_lock);
 			pthread_mutex_lock(&data->write_lock);
 			data->dead = 1;
-			printf("%-6lld  %-2d  💀 died, lack of time\n", get_time()
+			printf("%-6lld  %-2d  💀 died, lack of time or killed by SIGINT\n", get_time()
 				- data->start_time, data->philos[i].id);
 			pthread_mutex_unlock(&data->write_lock);
 			return (1);
@@ -42,6 +52,7 @@ void	*monitor_philos(void *arg)
 	t_data	*data;
 
 	data = (t_data *)arg;
+	signal(SIGINT, reaction);
 	while (!data->dead)
 	{
 		if (ft_lack_of_time(data))

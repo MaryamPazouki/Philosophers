@@ -20,15 +20,14 @@ int	check_args(int argc, char **argv)
 	i = 0;
 	if (argc != 5 && argc != 6)
 	{
-		printf("Usage: ./philo number_of_philosophers"
-			"time_to_die time_to_eat "
+		printf("Usage: ./philo number_of_philo time_to_die time_to_eat "
 			"time_to_sleep [number_of_times_each_philosopher_must_eat]");
 		return (1);
 	}
 	while (++i < argc)
 	{
-		j = -1;
-		while (++j < argv[i][j])
+		j = 0;
+		while (j < argv[i][j])
 		{
 			if (argv[i][j] < '0' || argv[i][j] > '9' ||
 				ft_atoi(argv[i]) <= 0 || ft_atoi(argv[i]) > 2147483647)
@@ -36,6 +35,7 @@ int	check_args(int argc, char **argv)
 				printf("Error: All arguments must be positive integers.\n");
 				return (1);
 			}
+			j++;
 		}
 	}
 	return (0);
