@@ -12,16 +12,6 @@
 
 #include "philo.h"
 
-int		g_flag = 0;
-
-void	reaction(int sig)
-{
-	if (sig == SIGINT)
-	{
-		printf("Terminating simulation...\n");
-		g_flag = 1;
-	}
-}
 int	ft_lack_of_time(t_data *data)
 {
 	int	i;

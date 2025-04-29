@@ -63,6 +63,8 @@ void	init_philosophers(t_data *data, t_philo *philos)
 	}
 }
 
+// here by philos initalization we check in counterclockwise ction 
+
 // void	init_data(t_data *data, char **argv)
 // {
 // 	int	i;

@@ -37,10 +37,7 @@ int	main(int argc, char **argv)
 
 	if (check_args(argc, argv))
 		return (1);
-	init_data(&data, argv);
-	printf("here \n\n\n");
-	// address_data = &data;
-	
+	init_data(&data, argv);	
 	philos = malloc(sizeof(t_philo) * data.num_philos);
 	if (!philos)
 	{
@@ -50,7 +47,7 @@ int	main(int argc, char **argv)
 
 	data.philos = philos;
 
-	
+
 	init_philosophers(&data, philos);
 	start_simulation(&data, philos);
 

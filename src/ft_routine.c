@@ -12,7 +12,7 @@
 
 #include "philo.h"
 
-int	check_one_philo(t_philo *philo)
+static	int	check_one_philo(t_philo *philo)
 {
 	if (philo->data->num_philos == 1)
 	{
@@ -33,7 +33,7 @@ int	check_one_philo(t_philo *philo)
 	return (0);
 }
 
-void	ft_pick_fork(t_philo *philo)
+static void	ft_pick_fork(t_philo *philo)
 {
 	if (philo->id % 2 == 0)
 	{
@@ -51,7 +51,7 @@ void	ft_pick_fork(t_philo *philo)
 	}
 }
 
-void	ft_eating_sleeping_thinking(t_philo *philo)
+static void	ft_eating_sleeping_thinking(t_philo *philo)
 {
 	while (1)
 	{

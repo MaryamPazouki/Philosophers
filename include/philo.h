@@ -62,6 +62,5 @@ void				init_philosophers(t_data *data, t_philo *philos);
 void				init_data(t_data *data, char **argv);
 int					check_args(int argc, char **argv);
 void				clean_up(t_data *data);
-void				*philo_routine(void *arg);
 void				*monitor_philos(void *arg);
 #endif
