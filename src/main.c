@@ -46,8 +46,7 @@ int	main(int argc, char **argv)
 	}
 
 	data.philos = philos;
-
-
+	
 	init_philosophers(&data, philos);
 	start_simulation(&data, philos);
 
