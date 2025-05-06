@@ -18,9 +18,18 @@ void	clean_up(t_data *data)
 	{
 		free(data->forks);
 	}
-	// printf("here \n\n\n");
-	// free(&(data->write_lock));
-	// free(&(data->meal_check_lock));
 	pthread_mutex_destroy(&data->write_lock);
 	pthread_mutex_destroy(&data->meal_check_lock);
 }
+// void	clean_up(t_data *data)
+// {
+// 	if (data->forks)
+// 	{
+// 		free(data->forks);
+// 	}
+// 	// printf("here \n\n\n");
+// 	// free(&(data->write_lock));
+// 	// free(&(data->meal_check_lock));
+// 	pthread_mutex_destroy(&data->write_lock);
+// 	pthread_mutex_destroy(&data->meal_check_lock);
+// }

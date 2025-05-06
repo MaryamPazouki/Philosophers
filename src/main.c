@@ -23,12 +23,9 @@ void	start_simulation(t_data *data, t_philo *philos)
 	while (i < data->num_philos)
 	{
 		pthread_join(philos[i].thread, NULL);
-
 		i++;
 	}
 }
-
-
 
 int	main(int argc, char **argv)
 {
@@ -37,19 +34,16 @@ int	main(int argc, char **argv)
 
 	if (check_args(argc, argv))
 		return (1);
-	init_data(&data, argv);	
+	init_data(&data, argv);
 	philos = malloc(sizeof(t_philo) * data.num_philos);
 	if (!philos)
 	{
 		printf("Error: Memory allocation failed.\n");
 		return (1);
 	}
-
 	data.philos = philos;
-	
 	init_philosophers(&data, philos);
 	start_simulation(&data, philos);
-
 	free(philos);
 	clean_up(&data);
 	return (0);
